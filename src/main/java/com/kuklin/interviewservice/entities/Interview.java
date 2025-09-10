@@ -1,0 +1,32 @@
+package com.kuklin.interviewservice.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "interviews")
+@Data
+@NoArgsConstructor
+@Accessors(chain = true)
+public class Interview {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String jobTitle;
+    private String result;
+    @Column(name = "conversation_id")
+    private Long conversationId;
+    @Column(name = "user_id")
+    private Long userId;
+    private String properties;
+    @UpdateTimestamp
+    private LocalDateTime updated;
+    @CreationTimestamp
+    private LocalDateTime created;
+}
