@@ -23,7 +23,7 @@ public interface UserServiceFeignClient {
             @RequestBody BalanceSubtractRequest subtractTokens
     );
 
-    @GetMapping("/api/v1/users/{userId}")
+    @GetMapping("{userId}")
     UserDto getUserById(@PathVariable Long userId);
 
 }

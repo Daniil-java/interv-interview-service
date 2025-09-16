@@ -75,6 +75,15 @@ CREATE TABLE topic_progress (
                                 UNIQUE (user_id, topic_id)
 );
 
+CREATE TABLE IF NOT EXISTS interview_user_info (
+    id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    job_title TEXT,
+    properties TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_interview_user_info_user_id
+    ON interview_user_info(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_interviews_user_id
     ON interviews(user_id);

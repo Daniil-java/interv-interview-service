@@ -21,7 +21,7 @@ public interface AiConversationFeignClient {
     @GetMapping("/api/v1/conversations/{id}")
     ConversationDto getConversationDtoByIdOrGetNull(@PathVariable Long id);
 
-    @PostMapping("/api/v1/messages/service")
+    @PostMapping("/service")
     String sendServiceMessage(
             @RequestBody @Validated MessageRequestDto messageRequestDto);
 
