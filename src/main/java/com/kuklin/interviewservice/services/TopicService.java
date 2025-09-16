@@ -2,8 +2,8 @@ package com.kuklin.interviewservice.services;
 
 import com.kuklin.interviewservice.entities.Skill;
 import com.kuklin.interviewservice.entities.Topic;
-import com.kuklin.interviewservice.models.TopicDto;
 import com.kuklin.interviewservice.repositories.TopicRepository;
+import com.kuklin.sharedlibrary.TopicDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,19 +40,21 @@ public class TopicService {
     }
 
     public TopicDto getTopicByIdOrNull(Long topicId) {
-        return TopicDto.convertToDto(topicRepository.findById(topicId).orElse(null));
+        return Topic.convertToDto(topicRepository.findById(topicId).orElse(null));
     }
 
     public List<TopicDto> findTopicsBySkillId(Long skillId, Integer page, Integer rowCount) {
+        List<Topic> result = new ArrayList<>();
+
         if (page != null && rowCount != null) {
             var paging = PageRequest.of(page, rowCount, Sort.by("id"));
-            return TopicDto.convertToDtoList(
-                    topicRepository.findAllBySkill_Id(skillId, paging)
-            );
+            result.addAll(topicRepository.findAllBySkill_Id(skillId, paging));
+        } else {
+            result.addAll(topicRepository.findAllBySkill_Id(skillId));
         }
-        return TopicDto.convertToDtoList(
-                topicRepository.findAllBySkill_Id(skillId)
-        );
+
+        return Topic.convertToDtoList(result);
+
     }
 
     public List<Topic> findTopicsBySkill(Skill skill) {

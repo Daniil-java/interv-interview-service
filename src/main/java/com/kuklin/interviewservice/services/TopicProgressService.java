@@ -1,8 +1,8 @@
 package com.kuklin.interviewservice.services;
 
 import com.kuklin.interviewservice.entities.TopicProgress;
-import com.kuklin.interviewservice.models.TopicProgressDto;
 import com.kuklin.interviewservice.repositories.TopicProgressRepository;
+import com.kuklin.sharedlibrary.TopicProgressDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,30 +29,30 @@ public class TopicProgressService {
     }
 
     //Изменение состояния прогресса. Прогресс определяется ИИ.
-    public TopicProgressDto updateProgress(Long userId, Long topicId, int level) {
+    public TopicProgressDto updateProgress(TopicProgressDto progressDto) {
         //Уровень, при котором знание топика считается плохим
         int weakAreaLevel = 60;
-        Optional<TopicProgress> optionalTopicProgress =
-                topicProgressRepository.findByUserIdAndTopicId(userId, topicId);
+        Optional<TopicProgress> optionalTopicProgress = topicProgressRepository
+                .findByUserIdAndTopicId(progressDto.getUserId(), progressDto.getTopicId());
 
         TopicProgress topicProgress;
         //Создание топика в случае его отсутствия.
         if (optionalTopicProgress.isEmpty()) {
-            topicProgress = createProgress(userId, topicId);
+            topicProgress = createProgress(progressDto.getUserId(), progressDto.getTopicId());
         } else {
             topicProgress = optionalTopicProgress.get();
         }
 
-        return TopicProgressDto.convertToDto(
+        return TopicProgress.convertToDto(
                 topicProgressRepository.save(topicProgress
-                    .setConfidenceLevel(level)
-                    .setIsWeakArea(level <= weakAreaLevel)
+                    .setConfidenceLevel(progressDto.getConfidenceLevel())
+                    .setIsWeakArea(progressDto.getConfidenceLevel() <= weakAreaLevel)
                 )
         );
     }
 
     public List<TopicProgressDto> getTopicProgressByUserId(Long userId) {
-        return TopicProgressDto.convertToDtoList(
+        return TopicProgress.convertToDtoList(
                 topicProgressRepository.findAllByUserId(userId)
         );
     }

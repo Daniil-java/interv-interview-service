@@ -2,18 +2,15 @@ package com.kuklin.interviewservice.services;
 
 import com.kuklin.interviewservice.entities.Skill;
 import com.kuklin.interviewservice.entities.Vacancy;
-import com.kuklin.interviewservice.models.SkillDto;
 import com.kuklin.interviewservice.repositories.SkillRepository;
+import com.kuklin.sharedlibrary.SkillDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,22 +20,26 @@ public class SkillService {
     private final TopicService topicService;
 
     public List<SkillDto> getSkillsById(Long vacancyId) {
-        return SkillDto.convertToDtoList(skillRepository.findAllByVacancyId(vacancyId));
+        return Skill.convertToDtoList(skillRepository.findAllByVacancyId(vacancyId));
     }
 
     public SkillDto getSkillByIdOrNull(Long skillId) {
-        return SkillDto.convertToDto(skillRepository.findById(skillId).orElse(null));
+        return skillRepository.findById(skillId)
+                .map(Skill::convertToDto)
+                .orElse(null);
     }
 
     public List<SkillDto> getSkillsByVacancy(Long vacancyId, Integer page, Integer rowCount) {
+        List<Skill> result = new ArrayList<>();
+
         if (page != null && rowCount != null) {
             var paging = PageRequest.of(page, rowCount, Sort.by("id"));
-            return SkillDto.convertToDtoList(
-                    skillRepository.findAllByVacancyId(vacancyId, paging).getContent()
-            );
+            result.addAll(skillRepository.findAllByVacancyId(vacancyId, paging));
+        } else {
+            result.addAll(skillRepository.findAllByVacancyId(vacancyId));
         }
 
-        return SkillDto.convertToDtoList(skillRepository.findAllByVacancyId(vacancyId));
+        return Skill.convertToDtoList(result);
     }
 
 

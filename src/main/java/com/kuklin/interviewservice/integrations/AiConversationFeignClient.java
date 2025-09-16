@@ -1,8 +1,8 @@
 package com.kuklin.interviewservice.integrations;
 
-import com.kuklin.interviewservice.sharedlibrary.ConversationDto;
-import com.kuklin.interviewservice.sharedlibrary.MessageRequestDto;
-import com.kuklin.interviewservice.sharedlibrary.MessageResponseDto;
+import com.kuklin.sharedlibrary.ConversationDto;
+import com.kuklin.sharedlibrary.MessageRequestDto;
+import com.kuklin.sharedlibrary.MessageResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;

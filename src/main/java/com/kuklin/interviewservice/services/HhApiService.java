@@ -1,7 +1,7 @@
 package com.kuklin.interviewservice.services;
 
 import com.kuklin.interviewservice.integrations.HhFeignClient;
-import com.kuklin.interviewservice.models.HhResponseDto;
+import com.kuklin.sharedlibrary.HhResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

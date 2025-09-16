@@ -1,6 +1,6 @@
 package com.kuklin.interviewservice.entities;
 
-import com.kuklin.interviewservice.models.SkillDto;
+import com.kuklin.sharedlibrary.SkillDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,5 +47,19 @@ public class Skill {
         return skillDtoList.stream()
                 .map(Skill::dtoToEntity)
                 .collect(Collectors.toList());
+    }
+
+    public static SkillDto convertToDto(Skill skill) {
+        return new SkillDto()
+                .setId(skill.getId())
+                .setCategory(skill.getCategory())
+                .setName(skill.getName())
+                ;
+    }
+
+    public static List<SkillDto> convertToDtoList(List<Skill> skillList) {
+        return skillList.stream()
+                .map(Skill::convertToDto)
+                .toList();
     }
 }

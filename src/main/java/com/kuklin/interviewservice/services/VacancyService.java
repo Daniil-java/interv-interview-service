@@ -3,21 +3,24 @@ package com.kuklin.interviewservice.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kuklin.interviewservice.entities.Skill;
 import com.kuklin.interviewservice.entities.Vacancy;
 import com.kuklin.interviewservice.integrations.AiConversationFeignClient;
-import com.kuklin.interviewservice.models.SkillDto;
-import com.kuklin.interviewservice.models.VacancyDto;
 import com.kuklin.interviewservice.repositories.VacancyRepository;
-import com.kuklin.interviewservice.sharedlibrary.ChatModel;
-import com.kuklin.interviewservice.sharedlibrary.MessageRequestDto;
-import com.kuklin.interviewservice.sharedlibrary.exceptions.ErrorResponseException;
-import com.kuklin.interviewservice.sharedlibrary.exceptions.ErrorStatus;
+import com.kuklin.sharedlibrary.ChatModel;
+import com.kuklin.sharedlibrary.MessageRequestDto;
+import com.kuklin.sharedlibrary.SkillDto;
+import com.kuklin.sharedlibrary.VacancyDto;
+import com.kuklin.sharedlibrary.exceptions.ErrorResponseException;
+import com.kuklin.sharedlibrary.exceptions.ErrorStatus;
+import com.kuklin.sharedlibrary.exceptions.ServiceOrigin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -50,12 +53,12 @@ public class VacancyService {
             Название вакансии или должности: %s
             """;
 
-    public VacancyDto createVacancyName(Long userId, String title) {
+    public VacancyDto createVacancyName(VacancyDto vacancyDto) {
         //Формирование сообщения для сервиса общения с ИИ
         MessageRequestDto messageRequestDto = new MessageRequestDto()
-                .setContent(String.format(REQUEST, title))
+                .setContent(String.format(REQUEST, vacancyDto.getTitle()))
                 .setModel(ChatModel.GPT4O)
-                .setUserId(userId)
+                .setUserId(vacancyDto.getUserId())
                 ;
         String jsonAnswer =
                 aiConversationFeignClient.sendServiceMessage(messageRequestDto);
@@ -69,30 +72,40 @@ public class VacancyService {
             );
         } catch (JsonProcessingException e) {
             log.error("Ошибка десериализации: ", e);
-            throw new ErrorResponseException(ErrorStatus.AI_RESPONSE_DESERIALIZATION);
+            throw new ErrorResponseException(
+                    ErrorStatus.AI_RESPONSE_DESERIALIZATION,
+                    ServiceOrigin.INTERVIEW_SERVICE
+            );
         }
 
         Vacancy vacancy = new Vacancy()
-                .setTitle(title)
-                .setUserId(userId);
+                .setTitle(vacancyDto.getTitle())
+                .setUserId(vacancyDto.getUserId());
         vacancy = vacancyRepository.save(vacancy);
 
-        skillService.createNewSkillsOrGetExists(skillDtos, vacancy, userId);
+        skillService.createNewSkillsOrGetExists(skillDtos, vacancy, vacancy.getUserId());
 
-        return VacancyDto.convertToDto(vacancy);
+        return Vacancy.convertToDto(vacancy);
     }
 
     public List<VacancyDto> getVacanciesByUser(Long userId, Integer page, Integer rowCount) {
+        List<Vacancy> result = new ArrayList<>();
+
         if (page != null && rowCount != null) {
             var paging = PageRequest.of(page, rowCount, Sort.by("id"));
-            return VacancyDto.convertToDtoList(vacancyRepository.findAllByUserId(userId, paging));
+            result.addAll(vacancyRepository.findAllByUserId(userId, paging));
+        } else {
+            result.addAll(vacancyRepository.findAllByUserId(userId));
         }
-        return VacancyDto.convertToDtoList(vacancyRepository.findAllByUserId(userId));
+
+        return Vacancy.convertToDtoList(result);
     }
 
     public VacancyDto getVacancyById(Long vacancyId) {
-        return VacancyDto.convertToDto(vacancyRepository.findById(vacancyId)
-                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.VACANCY_NOT_FOUND))
+        return Vacancy.convertToDto(vacancyRepository.findById(vacancyId)
+                .orElseThrow(() -> new ErrorResponseException(
+                        ErrorStatus.VACANCY_NOT_FOUND,
+                        ServiceOrigin.INTERVIEW_SERVICE))
         );
     }
 }

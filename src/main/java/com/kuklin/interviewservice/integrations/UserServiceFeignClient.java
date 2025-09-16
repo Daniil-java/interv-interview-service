@@ -1,8 +1,8 @@
 package com.kuklin.interviewservice.integrations;
 
 import com.kuklin.interviewservice.configurations.FeignClientConfig;
-import com.kuklin.interviewservice.sharedlibrary.BalanceSubtractRequest;
-import com.kuklin.interviewservice.sharedlibrary.UserDto;
+import com.kuklin.sharedlibrary.BalanceSubtractRequest;
+import com.kuklin.sharedlibrary.UserDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

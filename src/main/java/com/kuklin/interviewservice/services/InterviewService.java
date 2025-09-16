@@ -3,10 +3,12 @@ package com.kuklin.interviewservice.services;
 import com.kuklin.interviewservice.entities.Interview;
 import com.kuklin.interviewservice.integrations.AiConversationFeignClient;
 import com.kuklin.interviewservice.integrations.UserServiceFeignClient;
-import com.kuklin.interviewservice.models.InterviewDto;
 import com.kuklin.interviewservice.repositories.InterviewRepository;
-import com.kuklin.interviewservice.sharedlibrary.ConversationDto;
-import com.kuklin.interviewservice.sharedlibrary.UserDto;
+import com.kuklin.sharedlibrary.ConversationDto;
+import com.kuklin.sharedlibrary.InterviewDto;
+import com.kuklin.sharedlibrary.InterviewRequest;
+import com.kuklin.sharedlibrary.UserDto;
+import com.kuklin.sharedlibrary.exceptions.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,37 +26,38 @@ public class InterviewService {
     private final AiConversationFeignClient aiConversationFC;
     private final UserServiceFeignClient userServiceFeignClient;
 
-    public InterviewDto createInterview(Long conversationId, Long userId) {
-        UserDto userDto = userServiceFeignClient.getUserById(userId);
+    public InterviewDto createInterview(InterviewRequest interviewRequest) {
+        UserDto userDto = userServiceFeignClient.getUserById(interviewRequest.getUserId());
         ConversationDto conversationDto =
-                aiConversationFC.getConversationDtoByIdOrGetNull(conversationId);
+                aiConversationFC.getConversationDtoByIdOrGetNull(interviewRequest.getConversationId());
 
         if (conversationDto == null) {
-            log.error("Failed to save conversation!");
+            log.error("Conversation not found!", ErrorStatus.CONVERSATION_NOT_FOUND);
             return null;
         }
         Interview interview = new Interview()
-                .setConversationId(conversationId)
+                .setConversationId(interviewRequest.getConversationId())
                 .setJobTitle(userDto.getJobTitle())
                 .setProperties(userDto.getProperties())
                 .setUserId(userDto.getId());
 
-        return InterviewDto.convertToDto(interviewRepository.save(interview));
+        return Interview.convertToDto(interviewRepository.save(interview));
     }
 
-    public InterviewDto setResultOrNull(Long userId, Long conversationId, String response) {
+    public InterviewDto setResultOrNull(InterviewRequest interviewRequest) {
         Interview interview = interviewRepository
-                .findInterviewByConversationId(conversationId).orElse(null);
+                .findInterviewByConversationId(interviewRequest.getConversationId())
+                .orElse(null);
 
         if (interview == null) {
-            log.error("Failed to save conversation!");
+            log.error("Interview not found!", ErrorStatus.INTERVIEW_NOT_FOUND);
             return null;
         }
 
-        return InterviewDto.convertToDto(interviewRepository.save(
+        return Interview.convertToDto(interviewRepository.save(
                 interview
-                        .setResult(response)
-                        .setUserId(userId)
+                        .setResult(interviewRequest.getResult())
+                        .setUserId(interviewRequest.getUserId())
         ));
     }
 
@@ -62,7 +65,7 @@ public class InterviewService {
         return interviewRepository
                 .findAllByUserIdOrderByCreatedDesc(userId)
                 .stream()
-                .map(InterviewDto::convertToDto)
+                .map(Interview::convertToDto)
                 .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package com.kuklin.interviewservice.entities;
 
+import com.kuklin.sharedlibrary.InterviewDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,4 +30,15 @@ public class Interview {
     private LocalDateTime updated;
     @CreationTimestamp
     private LocalDateTime created;
+
+    public static InterviewDto convertToDto(Interview interview) {
+        return new InterviewDto()
+                .setId(interview.getId())
+                .setUserId(interview.getUserId())
+                .setJobTitle(interview.getJobTitle())
+                .setProperties(interview.getProperties())
+                .setResult(interview.getResult())
+                .setConversationId(interview.getConversationId())
+                ;
+    }
 }

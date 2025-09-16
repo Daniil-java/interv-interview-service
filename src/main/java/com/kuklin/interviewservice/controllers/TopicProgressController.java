@@ -1,27 +1,24 @@
 package com.kuklin.interviewservice.controllers;
 
-import com.kuklin.interviewservice.models.TopicProgressDto;
 import com.kuklin.interviewservice.services.TopicProgressService;
+import com.kuklin.sharedlibrary.TopicProgressDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/progress")
 @RequiredArgsConstructor
 public class TopicProgressController {
     private final TopicProgressService topicProgressService;
 
-    @PutMapping("/progress")
-    public TopicProgressDto updateProgress(@RequestBody TopicProgressDto dto) {
-        return topicProgressService.updateProgress(
-                dto.getUserId(),
-                dto.getTopicId(),
-                dto.getConfidenceLevel());
+    @PutMapping
+    public TopicProgressDto updateProgress(@RequestBody TopicProgressDto topicProgressDto) {
+        return topicProgressService.updateProgress(topicProgressDto);
     }
 
-    @GetMapping("/progress")
+    @GetMapping
     public List<TopicProgressDto> getTopicProgressByUserId(@RequestParam Long userId) {
         return topicProgressService.getTopicProgressByUserId(userId);
     }

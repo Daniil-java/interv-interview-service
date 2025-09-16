@@ -74,3 +74,35 @@ CREATE TABLE topic_progress (
 
                                 UNIQUE (user_id, topic_id)
 );
+
+
+CREATE INDEX IF NOT EXISTS idx_interviews_user_id
+    ON interviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_interviews_conversation_id
+    ON interviews(conversation_id);
+
+
+CREATE INDEX IF NOT EXISTS idx_vacancy_user_id
+    ON vacancy(user_id);
+
+
+CREATE INDEX IF NOT EXISTS idx_skills_name
+    ON skills(name);
+CREATE INDEX IF NOT EXISTS idx_skills_category
+    ON skills(category);
+
+
+CREATE INDEX IF NOT EXISTS idx_vacancy_skill_vacancy_id
+    ON vacancy_skill(vacancy_id);
+CREATE INDEX IF NOT EXISTS idx_vacancy_skill_skill_id
+    ON vacancy_skill(skill_id);
+
+
+CREATE INDEX IF NOT EXISTS idx_topics_skill_id
+    ON topics(skill_id);
+
+
+CREATE INDEX IF NOT EXISTS idx_topic_progress_user_id
+    ON topic_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_topic_progress_topic_id
+    ON topic_progress(topic_id);
